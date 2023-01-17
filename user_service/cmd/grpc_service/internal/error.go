@@ -7,16 +7,11 @@ import (
 type errKind int
 
 var (
-	ErrCors    = Error{kind: cors}
-	ErrNoRoute = Error{kind: noRoute}
 	ErrUnknown = Error{kind: unknown}
 )
 
 const (
 	_ errKind = iota
-	cors
-	unauthorized
-	noRoute
 	unknown
 )
 
@@ -27,10 +22,6 @@ type Error struct {
 
 func (e *Error) Error() string {
 	switch e.kind {
-	case cors:
-		return "CORS error"
-	case noRoute:
-		return "No route"
 	default:
 		return fmt.Sprintf("Unknown error %v", e.err)
 	}

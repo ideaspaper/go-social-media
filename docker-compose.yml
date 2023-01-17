@@ -4,7 +4,7 @@ services:
     container_name: 'social_media_db'
     image: 'social-media/db'
     build:
-      context: './db_setup'
+      context: './db'
       dockerfile: 'Dockerfile'
     restart: 'always'
     environment:

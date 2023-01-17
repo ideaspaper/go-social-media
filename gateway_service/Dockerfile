@@ -5,10 +5,10 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 COPY ./ ./
-RUN go build -o ./build/http ./cmd/http/main.go
+RUN go build -o ./build/http_service ./cmd/http_service/main.go
 
 ## Deploy
 FROM alpine:3.16.2
 WORKDIR /usr/local/app/
-COPY --from=build /usr/local/app/build/http ./http
-ENTRYPOINT ["./http"]
+COPY --from=build /usr/local/app/build/http_service ./http_service
+ENTRYPOINT ["./http_service"]
