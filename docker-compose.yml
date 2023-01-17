@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  social_media_db:
+    container_name: 'social_media_db'
+    image: 'social-media/db'
+    build:
+      context: './db_setup'
+      dockerfile: 'Dockerfile'
+    restart: 'always'
+    environment:
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASS}'
+      - 'POSTGRES_DB=${DB_NAME}'
+    networks:
+      - 'social_media_network'
+  adminer:
+    container_name: 'adminer'
+    image: 'adminer'
+    restart: 'always'
+    ports:
+      - '8080:8080'
+    environment:
+      - 'ADMINER_DEFAULT_SERVER=social_media_db'
+    depends_on:
+      - 'social_media_db'
+    networks:
+      - 'social_media_network'
+  gateway_service:
+    container_name: 'gateway_service'
+    image: 'social-media/gateway-service'
+    build:
+      context: './gateway_service'
+      dockerfile: Dockerfile
+    ports:
+      - '80:8081'
+    environment:
+      - 'LOG_LEVEL=${GATEWAY_LOG_LEVEL}'
+      - 'APP_NAME=${GATEWAY_APP_NAME}'
+      - 'APP_VERSION=${GATEWAY_APP_VERSION}'
+      - 'USER_SERVICE_HOST=user_service'
+      - 'USER_SERVICE_PORT=50051'
+    depends_on:
+      - 'user_service'
+    networks:
+      - 'social_media_network'
+  user_service:
+    container_name: 'user_service'
+    image: 'social-media/user-service'
+    build:
+      context: './user_service'
+      dockerfile: Dockerfile
+    environment:
+      - 'DB_HOST=${DB_HOST}'
+      - 'DB_USER=${DB_USER}'
+      - 'DB_PASS=${DB_PASS}'
+      - 'DB_NAME=${DB_NAME}'
+      - 'DB_PORT=${DB_PORT}'
+      - 'LOG_LEVEL=${USER_LOG_LEVEL}'
+      - 'APP_NAME=${USER_APP_NAME}'
+      - 'APP_VERSION=${USER_APP_VERSION}'
+    depends_on:
+      - 'social_media_db'
+    networks:
+      - 'social_media_network'
+networks:
+  social_media_network:
+    name: 'social_media'
