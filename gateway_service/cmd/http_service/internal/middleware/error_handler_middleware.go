@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gatewayservice/cmd/http_service/internal"
 	"gatewayservice/internal/dto/resp"
+	"gatewayservice/internal/usecase"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,8 +54,10 @@ func (m Middleware) ErrorHandler(ctx *gin.Context) {
 			Message: "Oops... nothing here",
 			Data:    nil,
 		}
-	} else {
-		grpcStatus, ok := status.FromError(firstErr)
+	} else if errors.Is(firstErr, &usecase.ErrClientService) {
+		clientServiceError := errors.Unwrap(firstErr)
+		grpcServiceError := errors.Unwrap(clientServiceError)
+		grpcStatus, ok := status.FromError(grpcServiceError)
 		if ok {
 			code = grpcToHttp[grpcStatus.Code()]
 			body = &resp.StandardDto{

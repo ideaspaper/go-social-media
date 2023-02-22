@@ -28,13 +28,13 @@ func (h Handler) FindUserByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceClient.FindByID(ctx, &userPb.Req{
+	user, err := h.userServiceUsecase.FindUserByID(ctx, &userPb.Req{
 		RequestID: ctx.Value("request_id").(string),
 		UserID:    int64(userID),
 	})
 	if err != nil {
 		h.logger.Error(
-			"Got error from service",
+			"Got error from usecase",
 			err,
 			slog.String("request_id", ctx.Value("request_id").(string)),
 			slog.String("scope", scope),
@@ -77,7 +77,7 @@ func (h Handler) CreateUser(ctx *gin.Context) {
 		ctx.Error(internal.ErrFailToValidate.SetError(errors.New(strings.Join(errorMessages, ", "))))
 		return
 	}
-	user, err := h.userServiceClient.Create(ctx, &userPb.Req{
+	user, err := h.userServiceUsecase.CreateUser(ctx, &userPb.Req{
 		RequestID: ctx.Value("request_id").(string),
 		UserReq: &userPb.UserReq{
 			Email:     body.Email,
@@ -88,7 +88,7 @@ func (h Handler) CreateUser(ctx *gin.Context) {
 	})
 	if err != nil {
 		h.logger.Error(
-			"Got error from service",
+			"Got error from usecase",
 			err,
 			slog.String("request_id", ctx.Value("request_id").(string)),
 			slog.String("scope", scope),
@@ -124,13 +124,13 @@ func (h Handler) DeleteUserByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceClient.DeleteByID(ctx, &userPb.Req{
+	user, err := h.userServiceUsecase.DeleteUserByID(ctx, &userPb.Req{
 		RequestID: ctx.Value("request_id").(string),
 		UserID:    int64(userID),
 	})
 	if err != nil {
 		h.logger.Error(
-			"Got error from service",
+			"Got error from usecase",
 			err,
 			slog.String("request_id", ctx.Value("request_id").(string)),
 			slog.String("scope", scope),
@@ -166,13 +166,13 @@ func (h Handler) DeleteUserPermanentlyByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceClient.DeletePermanentlyByID(ctx, &userPb.Req{
+	user, err := h.userServiceUsecase.DeleteUserPermanentlyByID(ctx, &userPb.Req{
 		RequestID: ctx.Value("request_id").(string),
 		UserID:    int64(userID),
 	})
 	if err != nil {
 		h.logger.Error(
-			"Got error from service",
+			"Got error from usecase",
 			err,
 			slog.String("request_id", ctx.Value("request_id").(string)),
 			slog.String("scope", scope),

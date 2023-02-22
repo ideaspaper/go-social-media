@@ -11,7 +11,7 @@ func RespUserDtoToPb(userDto *resp.UserDto) *userPb.UserResp {
 	return &userPb.UserResp{
 		Id:        int64(userDto.ID),
 		Email:     userDto.Email,
-		FirstName: userDto.Email,
+		FirstName: userDto.FirstName,
 		LastName:  userDto.LastName,
 		CreatedAt: userDto.CreatedAt,
 		UpdatedAt: userDto.UpdatedAt,

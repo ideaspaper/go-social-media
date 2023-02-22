@@ -5,6 +5,7 @@ import (
 	"gatewayservice/cmd/http_service/internal/handler"
 	"gatewayservice/cmd/http_service/internal/middleware"
 	"gatewayservice/cmd/http_service/internal/router"
+	"gatewayservice/internal/usecase"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -54,8 +55,9 @@ func main() {
 	}
 	defer userServiceConn.Close()
 	userService := userPb.NewUserServiceClient(userServiceConn)
+	userServiceUsecase := usecase.NewUserServiceUsecase(logger, userService)
 	validate := validator.New()
-	handler := handler.New(logger, validate, userService)
+	handler := handler.New(logger, validate, userServiceUsecase)
 	middleware := middleware.New(logger)
 	router := router.New(handler, middleware)
 	logger.Info("Server listening", slog.String("port", appPort))

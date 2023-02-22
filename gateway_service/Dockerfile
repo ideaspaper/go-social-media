@@ -1,5 +1,5 @@
 ## Build
-FROM golang:1.19.3-alpine3.16 AS build
+FROM golang:1.20.1-alpine3.17 AS build
 WORKDIR /usr/local/app/
 COPY go.mod ./
 COPY go.sum ./
