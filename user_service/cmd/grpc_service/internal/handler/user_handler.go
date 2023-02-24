@@ -11,7 +11,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func (h *Handler) FindByID(ctx context.Context, in *userPb.FindByIDReq) (*userPb.FindByIDResp, error) {
+func (h Handler) FindByID(ctx context.Context, in *userPb.FindByIDReq) (*userPb.FindByIDResp, error) {
 	const scope = "userHandler#FindByID"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	user, err := h.userUsecase.FindByID(ctx, int(in.GetId()))
@@ -35,7 +35,7 @@ func (h *Handler) FindByID(ctx context.Context, in *userPb.FindByIDReq) (*userPb
 	}, nil
 }
 
-func (h *Handler) DeleteByID(ctx context.Context, in *userPb.DeleteByIDReq) (*userPb.DeleteByIDResp, error) {
+func (h Handler) DeleteByID(ctx context.Context, in *userPb.DeleteByIDReq) (*userPb.DeleteByIDResp, error) {
 	const scope = "userHandler#DeleteByID"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	user, err := h.userUsecase.DeleteByID(ctx, int(in.GetId()))
@@ -59,7 +59,7 @@ func (h *Handler) DeleteByID(ctx context.Context, in *userPb.DeleteByIDReq) (*us
 	}, nil
 }
 
-func (h *Handler) DeletePermanentlyByID(ctx context.Context, in *userPb.DeletePermanentlyByIDReq) (*userPb.DeletePermanentlyByIDResp, error) {
+func (h Handler) DeletePermanentlyByID(ctx context.Context, in *userPb.DeletePermanentlyByIDReq) (*userPb.DeletePermanentlyByIDResp, error) {
 	const scope = "userHandler#DeletePermanentlyByID"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	user, err := h.userUsecase.DeletePermanentlyByID(ctx, int(in.GetId()))
@@ -83,7 +83,7 @@ func (h *Handler) DeletePermanentlyByID(ctx context.Context, in *userPb.DeletePe
 	}, nil
 }
 
-func (h *Handler) Register(ctx context.Context, in *userPb.RegisterReq) (*userPb.RegisterResp, error) {
+func (h Handler) Register(ctx context.Context, in *userPb.RegisterReq) (*userPb.RegisterResp, error) {
 	const scope = "userHandler#Register"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	user, err := h.userUsecase.Register(ctx, &req.UserDto{
@@ -112,7 +112,7 @@ func (h *Handler) Register(ctx context.Context, in *userPb.RegisterReq) (*userPb
 	}, nil
 }
 
-func (h *Handler) Login(ctx context.Context, in *userPb.LoginReq) (*userPb.LoginResp, error) {
+func (h Handler) Login(ctx context.Context, in *userPb.LoginReq) (*userPb.LoginResp, error) {
 	const scope = "userHandler#Login"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	jwtDto, err := h.userUsecase.Login(ctx, &req.LoginDto{
