@@ -5,13 +5,15 @@ import "fmt"
 type errKind int
 
 var (
-	ErrClientService = Error{kind: clientService}
-	ErrUnknown       = Error{kind: unknown}
+	ErrClientService  = Error{kind: clientService}
+	ErrFailToValidate = Error{kind: failToValidate}
+	ErrUnknown        = Error{kind: unknown}
 )
 
 const (
 	_ errKind = iota
 	clientService
+	failToValidate
 	unknown
 )
 
@@ -24,6 +26,8 @@ func (e *Error) Error() string {
 	switch e.kind {
 	case clientService:
 		return fmt.Sprintf("Client service error %v", e.err)
+	case failToValidate:
+		return fmt.Sprintf("Fail to validate %v", e.err)
 	default:
 		return fmt.Sprintf("Unknown error %v", e.err)
 	}

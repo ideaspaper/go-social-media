@@ -6,9 +6,11 @@ import (
 
 	"userservice/internal/util"
 
-	userPb "github.com/ideaspaper/social-media-proto/user"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 type Interceptor struct {
@@ -24,8 +26,15 @@ func NewInterceptor(logger *slog.Logger) *Interceptor {
 func (i Interceptor) Intercept(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	const scope = "interceptor#Intercept"
 	start := time.Now()
-	request := req.(*userPb.Req)
-	ctx = context.WithValue(ctx, util.RequestID, request.RequestID)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Error(codes.Internal, "No metadata provided")
+	}
+	requestID := md["request-id"]
+	if len(requestID) == 0 {
+		return nil, status.Error(codes.Internal, "No request ID provided")
+	}
+	ctx = context.WithValue(ctx, util.RequestID, requestID[0])
 	h, err := handler(ctx, req)
 	if err != nil {
 		err = i.ErrorHandler(err)
@@ -33,7 +42,7 @@ func (i Interceptor) Intercept(ctx context.Context, req interface{}, info *grpc.
 	stop := time.Now()
 	i.logger.Info(
 		"Handle request",
-		slog.String("request_id", request.RequestID),
+		slog.String("request_id", requestID[0]),
 		slog.String("scope", scope),
 		slog.String("method", info.FullMethod),
 		slog.String("latency", stop.Sub(start).String()),

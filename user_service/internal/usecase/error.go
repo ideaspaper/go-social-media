@@ -5,11 +5,13 @@ import "fmt"
 type errKind int
 
 var (
-	ErrUserAlreadyExists   = Error{kind: userAlreadyExists}
-	ErrFailHashingPassword = Error{kind: failHashingPassword}
-	ErrFailToValidate      = Error{kind: failToValidate}
-	ErrUserNotFound        = Error{kind: userNotFound}
-	ErrUnknown             = Error{kind: unknown}
+	ErrUserAlreadyExists    = Error{kind: userAlreadyExists}
+	ErrFailHashingPassword  = Error{kind: failHashingPassword}
+	ErrFailToValidate       = Error{kind: failToValidate}
+	ErrUserNotFound         = Error{kind: userNotFound}
+	ErrWrongEmailOrPassword = Error{kind: wrongEmailOrPassword}
+	ErrFailSigningJWT       = Error{kind: failSigningJWT}
+	ErrUnknown              = Error{kind: unknown}
 )
 
 const (
@@ -18,6 +20,8 @@ const (
 	failHashingPassword
 	failToValidate
 	userNotFound
+	wrongEmailOrPassword
+	failSigningJWT
 	unknown
 )
 
@@ -36,6 +40,10 @@ func (e *Error) Error() string {
 		return fmt.Sprintf("%v", e.err)
 	case userNotFound:
 		return fmt.Sprintf("User not found %v", e.err)
+	case wrongEmailOrPassword:
+		return fmt.Sprintf("Wrong email or password %v", e.err)
+	case failSigningJWT:
+		return fmt.Sprintf("Fail signing JWT %v", e.err)
 	default:
 		return fmt.Sprintf("Unknown error %v", e.err)
 	}

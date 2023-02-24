@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"gatewayservice/internal/util"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,10 +24,11 @@ func (m Middleware) Logger(ctx *gin.Context) {
 	const scope = "middleware#Logger"
 	ctx.Writer = &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: ctx.Writer}
 	ctx.Next()
+	requestID := ctx.Value(util.RequestID).(string)
 	stop := time.Now()
 	m.logger.Info(
 		"Handle user request",
-		slog.Any("request_id", ctx.Value("request_id")),
+		slog.Any("request_id", requestID),
 		slog.String("scope", scope),
 		slog.String("ip", ctx.ClientIP()),
 		slog.String("method", ctx.Request.Method),

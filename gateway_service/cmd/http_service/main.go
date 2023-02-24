@@ -54,10 +54,10 @@ func main() {
 		os.Exit(1)
 	}
 	defer userServiceConn.Close()
-	userService := userPb.NewUserServiceClient(userServiceConn)
-	userServiceUsecase := usecase.NewUserServiceUsecase(logger, userService)
 	validate := validator.New()
-	handler := handler.New(logger, validate, userServiceUsecase)
+	userService := userPb.NewUserServiceClient(userServiceConn)
+	userServiceUsecase := usecase.NewUserServiceUsecase(logger, validate, userService)
+	handler := handler.New(logger, userServiceUsecase)
 	middleware := middleware.New(logger)
 	router := router.New(handler, middleware)
 	logger.Info("Server listening", slog.String("port", appPort))

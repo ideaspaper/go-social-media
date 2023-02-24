@@ -40,18 +40,18 @@ func (m Middleware) ErrorHandler(ctx *gin.Context) {
 			Message: firstErr.Error(),
 			Data:    nil,
 		}
-	} else if errors.Is(firstErr, &internal.ErrFailToValidate) {
-		code = http.StatusBadRequest
-		body = &resp.StandardDto{
-			Code:    code,
-			Message: errors.Unwrap(firstErr).Error(),
-			Data:    nil,
-		}
 	} else if errors.Is(firstErr, &internal.ErrNoRoute) {
 		code = http.StatusNotFound
 		body = &resp.StandardDto{
 			Code:    code,
 			Message: "Oops... nothing here",
+			Data:    nil,
+		}
+	} else if errors.Is(firstErr, &usecase.ErrFailToValidate) {
+		code = http.StatusBadRequest
+		body = &resp.StandardDto{
+			Code:    code,
+			Message: errors.Unwrap(firstErr).Error(),
 			Data:    nil,
 		}
 	} else if errors.Is(firstErr, &usecase.ErrClientService) {

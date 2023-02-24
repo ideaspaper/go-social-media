@@ -73,7 +73,51 @@ func (ur userRepository) FindByID(ctx context.Context, id int) (*model.User, err
 	return user.ToModel(), nil
 }
 
-func (ur userRepository) Create(ctx context.Context, userDto req.UserDto) (*model.User, error) {
+func (ur userRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
+	const scope = "userRepository#FindByEmail"
+	user := &sqltype.User{}
+	err := ur.db.QueryRow(
+		`
+			SELECT "id", "email", "password", "first_name", "last_name", "created_at", "updated_at", "deleted_at"
+			FROM "users_tab"
+			WHERE "email" = $1 AND "deleted_at" IS NULL;
+		`,
+		email,
+	).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.DeletedAt,
+	)
+	if err != nil {
+		ur.logger.Error(
+			"Failed to find a user by its email",
+			err,
+			slog.String("request_id", ctx.Value(util.RequestID).(string)),
+			slog.String("scope", scope),
+		)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", scope, repository.ErrDataNotFound.SetError(err))
+		}
+		pgError, ok := err.(*pgconn.PgError)
+		if !ok {
+			return nil, fmt.Errorf("%s: %w", scope, repository.ErrUnknown.SetError(err))
+		}
+		return nil, fmt.Errorf("%s: %w", scope, repository.ErrUnknown.SetError(pgError))
+	}
+	ur.logger.Info(
+		"Found a user by its email",
+		slog.String("request_id", ctx.Value(util.RequestID).(string)),
+		slog.String("scope", scope),
+	)
+	return user.ToModel(), nil
+}
+
+func (ur userRepository) Create(ctx context.Context, userDto *req.UserDto) (*model.User, error) {
 	const scope = "userRepository#Create"
 	user := &sqltype.User{}
 	err := ur.db.QueryRow(

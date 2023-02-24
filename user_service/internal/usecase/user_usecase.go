@@ -52,8 +52,54 @@ func (uu userUsecase) FindByID(ctx context.Context, id int) (*resp.UserDto, erro
 	return user.ToDto(), err
 }
 
-func (uu userUsecase) Create(ctx context.Context, userDto req.UserDto) (*resp.UserDto, error) {
-	const scope = "userUsecase#Create"
+func (uu userUsecase) DeleteByID(ctx context.Context, id int) (*resp.UserDto, error) {
+	const scope = "userUsecase#DeleteByID"
+	user, err := uu.userRepository.DeleteByID(ctx, id)
+	if err != nil {
+		uu.logger.Error(
+			"Got error from repository",
+			err,
+			slog.String("request_id", ctx.Value(util.RequestID).(string)),
+			slog.String("scope", scope),
+		)
+		if errors.Is(err, &repository.ErrDataNotFound) {
+			return nil, fmt.Errorf("%s: %w", scope, ErrUserNotFound.SetError(err))
+		}
+		return nil, fmt.Errorf("%s: %w", scope, ErrUnknown.SetError(err))
+	}
+	uu.logger.Info(
+		"Soft deleted a user by its ID",
+		slog.String("request_id", ctx.Value(util.RequestID).(string)),
+		slog.String("scope", scope),
+	)
+	return user.ToDto(), err
+}
+
+func (uu userUsecase) DeletePermanentlyByID(ctx context.Context, id int) (*resp.UserDto, error) {
+	const scope = "userUsecase#DeletePermanentlyByID"
+	user, err := uu.userRepository.DeletePermanentlyByID(ctx, id)
+	if err != nil {
+		uu.logger.Error(
+			"Got error from repository",
+			err,
+			slog.String("request_id", ctx.Value(util.RequestID).(string)),
+			slog.String("scope", scope),
+		)
+		if errors.Is(err, &repository.ErrDataNotFound) {
+			return nil, fmt.Errorf("%s: %w", scope, ErrUserNotFound.SetError(err))
+		}
+		return nil, fmt.Errorf("%s: %w", scope, ErrUnknown.SetError(err))
+	}
+	uu.logger.Info(
+		"Deleted a user permanently by its ID",
+		slog.String("request_id", ctx.Value(util.RequestID).(string)),
+		slog.String("scope", scope),
+	)
+	return user.ToDto(), err
+}
+
+func (uu userUsecase) Register(ctx context.Context, userDto *req.UserDto) (*resp.UserDto, error) {
+	const scope = "userUsecase#Register"
 	err := uu.validate.Struct(userDto)
 	if err != nil {
 		uu.logger.Error(
@@ -101,9 +147,24 @@ func (uu userUsecase) Create(ctx context.Context, userDto req.UserDto) (*resp.Us
 	return user.ToDto(), err
 }
 
-func (uu userUsecase) DeleteByID(ctx context.Context, id int) (*resp.UserDto, error) {
-	const scope = "userUsecase#DeleteByID"
-	user, err := uu.userRepository.DeleteByID(ctx, id)
+func (uu userUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.JwtDto, error) {
+	const scope = "userUsecase#Login"
+	err := uu.validate.Struct(loginDto)
+	if err != nil {
+		uu.logger.Error(
+			"Failed to validate input",
+			err,
+			slog.String("request_id", ctx.Value(util.RequestID).(string)),
+			slog.String("scope", scope),
+		)
+		validatorErrors := err.(validator.ValidationErrors)
+		errorMessages := []string{}
+		for _, validatorError := range validatorErrors {
+			errorMessages = append(errorMessages, loginDto.ErrorMessages(validatorError.Field(), validatorError.Tag()))
+		}
+		return nil, fmt.Errorf("%s: %w", scope, ErrFailToValidate.SetError(errors.New(strings.Join(errorMessages, ", "))))
+	}
+	user, err := uu.userRepository.FindByEmail(ctx, loginDto.Email)
 	if err != nil {
 		uu.logger.Error(
 			"Got error from repository",
@@ -116,33 +177,13 @@ func (uu userUsecase) DeleteByID(ctx context.Context, id int) (*resp.UserDto, er
 		}
 		return nil, fmt.Errorf("%s: %w", scope, ErrUnknown.SetError(err))
 	}
-	uu.logger.Info(
-		"Soft deleted a user by its ID",
-		slog.String("request_id", ctx.Value(util.RequestID).(string)),
-		slog.String("scope", scope),
-	)
-	return user.ToDto(), err
-}
-
-func (uu userUsecase) DeletePermanentlyByID(ctx context.Context, id int) (*resp.UserDto, error) {
-	const scope = "userUsecase#DeletePermanentlyByID"
-	user, err := uu.userRepository.DeletePermanentlyByID(ctx, id)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDto.Password))
 	if err != nil {
-		uu.logger.Error(
-			"Got error from repository",
-			err,
-			slog.String("request_id", ctx.Value(util.RequestID).(string)),
-			slog.String("scope", scope),
-		)
-		if errors.Is(err, &repository.ErrDataNotFound) {
-			return nil, fmt.Errorf("%s: %w", scope, ErrUserNotFound.SetError(err))
-		}
-		return nil, fmt.Errorf("%s: %w", scope, ErrUnknown.SetError(err))
+		return nil, fmt.Errorf("%s: %w", scope, ErrWrongEmailOrPassword.SetError(err))
 	}
-	uu.logger.Info(
-		"Deleted a user permanently by its ID",
-		slog.String("request_id", ctx.Value(util.RequestID).(string)),
-		slog.String("scope", scope),
-	)
-	return user.ToDto(), err
+	ss, err := util.GenerateSignedJwt(user.ID, user.Email)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", scope, ErrFailSigningJWT.SetError(err))
+	}
+	return &resp.JwtDto{Token: ss}, nil
 }

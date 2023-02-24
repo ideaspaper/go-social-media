@@ -2,102 +2,134 @@ package handler
 
 import (
 	"context"
-	"userservice/cmd/grpc_service/internal/util"
+	handlerUtil "userservice/cmd/grpc_service/internal/util"
+	"userservice/internal/dto/req"
+	internalUtil "userservice/internal/util"
 
 	userPb "github.com/ideaspaper/social-media-proto/user"
 
 	"golang.org/x/exp/slog"
 )
 
-func (h *Handler) FindByID(ctx context.Context, in *userPb.Req) (*userPb.Resp, error) {
-	const scope = "userHandler#FindUserByID"
-	user, err := h.userUsecase.FindByID(ctx, int(in.GetUserID()))
+func (h *Handler) FindByID(ctx context.Context, in *userPb.FindByIDReq) (*userPb.FindByIDResp, error) {
+	const scope = "userHandler#FindByID"
+	requestID := ctx.Value(internalUtil.RequestID).(string)
+	user, err := h.userUsecase.FindByID(ctx, int(in.GetId()))
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
 			err,
-			slog.String("request_id", in.GetRequestID()),
+			slog.String("request_id", requestID),
 			slog.String("scope", scope),
 		)
 		return nil, err
 	}
 	h.logger.Info(
 		"Found a user by its ID",
-		slog.String("request_id", in.GetRequestID()),
+		slog.String("request_id", requestID),
 		slog.String("scope", scope),
 	)
-	return &userPb.Resp{
+	return &userPb.FindByIDResp{
 		Message:  "Found a user by its ID",
-		UserResp: util.RespUserDtoToPb(user),
+		UserResp: handlerUtil.RespUserDtoToPb(user),
 	}, nil
 }
 
-func (h *Handler) Create(ctx context.Context, in *userPb.Req) (*userPb.Resp, error) {
-	const scope = "userHandler#CreateUser"
-	userDto := util.ReqUserPbToDto(in)
-	user, err := h.userUsecase.Create(ctx, userDto)
+func (h *Handler) DeleteByID(ctx context.Context, in *userPb.DeleteByIDReq) (*userPb.DeleteByIDResp, error) {
+	const scope = "userHandler#DeleteByID"
+	requestID := ctx.Value(internalUtil.RequestID).(string)
+	user, err := h.userUsecase.DeleteByID(ctx, int(in.GetId()))
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
 			err,
-			slog.String("request_id", in.GetRequestID()),
-			slog.String("scope", scope),
-		)
-		return nil, err
-	}
-	h.logger.Info(
-		"Created a user",
-		slog.String("request_id", in.GetRequestID()),
-		slog.String("scope", scope),
-	)
-	return &userPb.Resp{
-		Message:  "Created a user",
-		UserResp: util.RespUserDtoToPb(user),
-	}, nil
-}
-
-func (h *Handler) DeleteByID(ctx context.Context, in *userPb.Req) (*userPb.Resp, error) {
-	const scope = "userHandler#DeleteUserByID"
-	user, err := h.userUsecase.DeleteByID(ctx, int(in.GetUserID()))
-	if err != nil {
-		h.logger.Error(
-			"Got error from usecase",
-			err,
-			slog.String("request_id", in.GetRequestID()),
+			slog.String("request_id", requestID),
 			slog.String("scope", scope),
 		)
 		return nil, err
 	}
 	h.logger.Info(
 		"Soft deleted a user by its ID",
-		slog.String("request_id", in.GetRequestID()),
+		slog.String("request_id", requestID),
 		slog.String("scope", scope),
 	)
-	return &userPb.Resp{
+	return &userPb.DeleteByIDResp{
 		Message:  "Soft deleted a user by its ID",
-		UserResp: util.RespUserDtoToPb(user),
+		UserResp: handlerUtil.RespUserDtoToPb(user),
 	}, nil
 }
 
-func (h *Handler) DeletePermanentlyByID(ctx context.Context, in *userPb.Req) (*userPb.Resp, error) {
-	const scope = "userHandler#DeleteUserPermanentlyByID"
-	user, err := h.userUsecase.DeletePermanentlyByID(ctx, int(in.GetUserID()))
+func (h *Handler) DeletePermanentlyByID(ctx context.Context, in *userPb.DeletePermanentlyByIDReq) (*userPb.DeletePermanentlyByIDResp, error) {
+	const scope = "userHandler#DeletePermanentlyByID"
+	requestID := ctx.Value(internalUtil.RequestID).(string)
+	user, err := h.userUsecase.DeletePermanentlyByID(ctx, int(in.GetId()))
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
 			err,
-			slog.String("request_id", in.GetRequestID()),
+			slog.String("request_id", requestID),
 			slog.String("scope", scope),
 		)
 		return nil, err
 	}
 	h.logger.Info(
 		"Deleted a user permanently by its ID",
-		slog.String("request_id", in.GetRequestID()),
+		slog.String("request_id", requestID),
 		slog.String("scope", scope),
 	)
-	return &userPb.Resp{
+	return &userPb.DeletePermanentlyByIDResp{
 		Message:  "Deleted a user permanently by its ID",
-		UserResp: util.RespUserDtoToPb(user),
+		UserResp: handlerUtil.RespUserDtoToPb(user),
+	}, nil
+}
+
+func (h *Handler) Register(ctx context.Context, in *userPb.RegisterReq) (*userPb.RegisterResp, error) {
+	const scope = "userHandler#Register"
+	requestID := ctx.Value(internalUtil.RequestID).(string)
+	user, err := h.userUsecase.Register(ctx, &req.UserDto{
+		Email:     in.GetEmail(),
+		Password:  in.GetPassword(),
+		FirstName: in.GetFirstName(),
+		LastName:  in.GetLastName(),
+	})
+	if err != nil {
+		h.logger.Error(
+			"Got error from usecase",
+			err,
+			slog.String("request_id", requestID),
+			slog.String("scope", scope),
+		)
+		return nil, err
+	}
+	h.logger.Info(
+		"Registered a user",
+		slog.String("request_id", requestID),
+		slog.String("scope", scope),
+	)
+	return &userPb.RegisterResp{
+		Message:  "Registered a user",
+		UserResp: handlerUtil.RespUserDtoToPb(user),
+	}, nil
+}
+
+func (h *Handler) Login(ctx context.Context, in *userPb.LoginReq) (*userPb.LoginResp, error) {
+	const scope = "userHandler#Login"
+	requestID := ctx.Value(internalUtil.RequestID).(string)
+	jwtDto, err := h.userUsecase.Login(ctx, &req.LoginDto{
+		Email:    in.GetEmail(),
+		Password: in.GetPassword(),
+	})
+	if err != nil {
+		h.logger.Error(
+			"Got error from usecase",
+			err,
+			slog.String("request_id", requestID),
+			slog.String("scope", scope),
+		)
+		return nil, err
+	}
+	return &userPb.LoginResp{
+		Message: "User logged in",
+		Token:   jwtDto.Token,
 	}, nil
 }
