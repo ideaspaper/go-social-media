@@ -4,8 +4,7 @@ go 1.19
 
 require (
 	github.com/go-playground/validator/v10 v10.11.2
-	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
-	github.com/ideaspaper/social-media-proto v0.0.9
+	github.com/ideaspaper/social-media-proto v0.0.10
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.3.0
 	golang.org/x/crypto v0.6.0

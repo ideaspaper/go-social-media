@@ -7,6 +7,7 @@ type errKind int
 var (
 	ErrClientService  = Error{kind: clientService}
 	ErrFailToValidate = Error{kind: failToValidate}
+	ErrFailSigningJWT = Error{kind: failSigningJWT}
 	ErrUnknown        = Error{kind: unknown}
 )
 
@@ -14,6 +15,7 @@ const (
 	_ errKind = iota
 	clientService
 	failToValidate
+	failSigningJWT
 	unknown
 )
 
@@ -28,6 +30,8 @@ func (e *Error) Error() string {
 		return fmt.Sprintf("Client service error %v", e.err)
 	case failToValidate:
 		return fmt.Sprintf("Fail to validate %v", e.err)
+	case failSigningJWT:
+		return fmt.Sprintf("Fail signing JWT %v", e.err)
 	default:
 		return fmt.Sprintf("Unknown error %v", e.err)
 	}

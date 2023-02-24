@@ -147,7 +147,7 @@ func (uu userUsecase) Register(ctx context.Context, userDto *req.UserDto) (*resp
 	return user.ToDto(), err
 }
 
-func (uu userUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.JwtDto, error) {
+func (uu userUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.LoginDto, error) {
 	const scope = "userUsecase#Login"
 	err := uu.validate.Struct(loginDto)
 	if err != nil {
@@ -173,7 +173,7 @@ func (uu userUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.
 			slog.String("scope", scope),
 		)
 		if errors.Is(err, &repository.ErrDataNotFound) {
-			return nil, fmt.Errorf("%s: %w", scope, ErrUserNotFound.SetError(err))
+			return nil, fmt.Errorf("%s: %w", scope, ErrWrongEmailOrPassword.SetError(err))
 		}
 		return nil, fmt.Errorf("%s: %w", scope, ErrUnknown.SetError(err))
 	}
@@ -181,9 +181,8 @@ func (uu userUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", scope, ErrWrongEmailOrPassword.SetError(err))
 	}
-	ss, err := util.GenerateSignedJwt(user.ID, user.Email)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", scope, ErrFailSigningJWT.SetError(err))
-	}
-	return &resp.JwtDto{Token: ss}, nil
+	return &resp.LoginDto{
+		ID:    user.ID,
+		Email: user.Email,
+	}, nil
 }

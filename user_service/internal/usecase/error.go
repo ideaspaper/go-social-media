@@ -10,7 +10,6 @@ var (
 	ErrFailToValidate       = Error{kind: failToValidate}
 	ErrUserNotFound         = Error{kind: userNotFound}
 	ErrWrongEmailOrPassword = Error{kind: wrongEmailOrPassword}
-	ErrFailSigningJWT       = Error{kind: failSigningJWT}
 	ErrUnknown              = Error{kind: unknown}
 )
 
@@ -21,7 +20,6 @@ const (
 	failToValidate
 	userNotFound
 	wrongEmailOrPassword
-	failSigningJWT
 	unknown
 )
 
@@ -42,8 +40,6 @@ func (e *Error) Error() string {
 		return fmt.Sprintf("User not found %v", e.err)
 	case wrongEmailOrPassword:
 		return fmt.Sprintf("Wrong email or password %v", e.err)
-	case failSigningJWT:
-		return fmt.Sprintf("Fail signing JWT %v", e.err)
 	default:
 		return fmt.Sprintf("Unknown error %v", e.err)
 	}

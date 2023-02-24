@@ -115,7 +115,7 @@ func (h Handler) Register(ctx context.Context, in *userPb.RegisterReq) (*userPb.
 func (h Handler) Login(ctx context.Context, in *userPb.LoginReq) (*userPb.LoginResp, error) {
 	const scope = "userHandler#Login"
 	requestID := ctx.Value(internalUtil.RequestID).(string)
-	jwtDto, err := h.userUsecase.Login(ctx, &req.LoginDto{
+	loginDto, err := h.userUsecase.Login(ctx, &req.LoginDto{
 		Email:    in.GetEmail(),
 		Password: in.GetPassword(),
 	})
@@ -130,6 +130,7 @@ func (h Handler) Login(ctx context.Context, in *userPb.LoginReq) (*userPb.LoginR
 	}
 	return &userPb.LoginResp{
 		Message: "User logged in",
-		Token:   jwtDto.Token,
+		Id:      int64(loginDto.ID),
+		Email:   loginDto.Email,
 	}, nil
 }

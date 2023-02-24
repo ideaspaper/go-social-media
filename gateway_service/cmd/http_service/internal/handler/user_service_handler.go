@@ -26,7 +26,7 @@ func (h Handler) FindUserByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceUsecase.FindUserByID(ctx, userID)
+	response, err := h.userServiceUsecase.FindUserByID(ctx, userID)
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
@@ -47,7 +47,7 @@ func (h Handler) FindUserByID(ctx *gin.Context) {
 		&handlerUtil.StandardResponse{
 			Code:    http.StatusOK,
 			Message: http.StatusText(http.StatusOK),
-			Data:    user,
+			Data:    response,
 		},
 	)
 }
@@ -66,7 +66,7 @@ func (h Handler) DeleteUserByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceUsecase.DeleteUserByID(ctx, userID)
+	response, err := h.userServiceUsecase.DeleteUserByID(ctx, userID)
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
@@ -87,7 +87,7 @@ func (h Handler) DeleteUserByID(ctx *gin.Context) {
 		&handlerUtil.StandardResponse{
 			Code:    http.StatusOK,
 			Message: http.StatusText(http.StatusOK),
-			Data:    user,
+			Data:    response,
 		},
 	)
 }
@@ -106,7 +106,7 @@ func (h Handler) DeleteUserPermanentlyByID(ctx *gin.Context) {
 		ctx.Error(&internal.ErrBadParams)
 		return
 	}
-	user, err := h.userServiceUsecase.DeleteUserPermanentlyByID(ctx, userID)
+	response, err := h.userServiceUsecase.DeleteUserPermanentlyByID(ctx, userID)
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
@@ -127,7 +127,7 @@ func (h Handler) DeleteUserPermanentlyByID(ctx *gin.Context) {
 		&handlerUtil.StandardResponse{
 			Code:    http.StatusOK,
 			Message: http.StatusText(http.StatusOK),
-			Data:    user,
+			Data:    response,
 		},
 	)
 }
@@ -137,7 +137,7 @@ func (h Handler) RegisterUser(ctx *gin.Context) {
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	userDto := req.UserDto{}
 	ctx.ShouldBind(&userDto)
-	user, err := h.userServiceUsecase.Register(ctx, &userDto)
+	response, err := h.userServiceUsecase.Register(ctx, &userDto)
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
@@ -158,7 +158,7 @@ func (h Handler) RegisterUser(ctx *gin.Context) {
 		&handlerUtil.StandardResponse{
 			Code:    http.StatusCreated,
 			Message: http.StatusText(http.StatusCreated),
-			Data:    user,
+			Data:    response,
 		},
 	)
 }
@@ -168,7 +168,7 @@ func (h Handler) LoginUser(ctx *gin.Context) {
 	requestID := ctx.Value(internalUtil.RequestID).(string)
 	loginDto := req.LoginDto{}
 	ctx.ShouldBind(&loginDto)
-	user, err := h.userServiceUsecase.Login(ctx, &loginDto)
+	response, err := h.userServiceUsecase.Login(ctx, &loginDto)
 	if err != nil {
 		h.logger.Error(
 			"Got error from usecase",
@@ -189,7 +189,7 @@ func (h Handler) LoginUser(ctx *gin.Context) {
 		&handlerUtil.StandardResponse{
 			Code:    http.StatusOK,
 			Message: http.StatusText(http.StatusOK),
-			Data:    user,
+			Data:    response,
 		},
 	)
 }

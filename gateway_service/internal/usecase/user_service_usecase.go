@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gatewayservice/internal/dto/req"
+	"gatewayservice/internal/dto/resp"
 	"gatewayservice/internal/util"
 	"strings"
 
@@ -32,7 +33,7 @@ func (u userServiceUsecase) FindUserByID(ctx context.Context, userID int) (*user
 	const scope = "userServiceUsecase#FindUserByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
-	user, err := u.userServiceClient.FindByID(mdCtx, &userPb.FindByIDReq{
+	response, err := u.userServiceClient.FindByID(mdCtx, &userPb.FindByIDReq{
 		Id: int64(userID),
 	})
 	if err != nil {
@@ -44,14 +45,14 @@ func (u userServiceUsecase) FindUserByID(ctx context.Context, userID int) (*user
 		)
 		return nil, fmt.Errorf("%s: %w", scope, ErrClientService.SetError(err))
 	}
-	return user, nil
+	return response, nil
 }
 
 func (u userServiceUsecase) DeleteUserByID(ctx context.Context, userID int) (*userPb.DeleteByIDResp, error) {
 	const scope = "userServiceUsecase#DeleteUserByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
-	user, err := u.userServiceClient.DeleteByID(mdCtx, &userPb.DeleteByIDReq{
+	response, err := u.userServiceClient.DeleteByID(mdCtx, &userPb.DeleteByIDReq{
 		Id: int64(userID),
 	})
 	if err != nil {
@@ -63,14 +64,14 @@ func (u userServiceUsecase) DeleteUserByID(ctx context.Context, userID int) (*us
 		)
 		return nil, fmt.Errorf("%s: %w", scope, ErrClientService.SetError(err))
 	}
-	return user, nil
+	return response, nil
 }
 
 func (u userServiceUsecase) DeleteUserPermanentlyByID(ctx context.Context, userID int) (*userPb.DeletePermanentlyByIDResp, error) {
 	const scope = "userServiceUsecase#DeleteUserPermanentlyByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
-	user, err := u.userServiceClient.DeletePermanentlyByID(mdCtx, &userPb.DeletePermanentlyByIDReq{
+	response, err := u.userServiceClient.DeletePermanentlyByID(mdCtx, &userPb.DeletePermanentlyByIDReq{
 		Id: int64(userID),
 	})
 	if err != nil {
@@ -82,7 +83,7 @@ func (u userServiceUsecase) DeleteUserPermanentlyByID(ctx context.Context, userI
 		)
 		return nil, fmt.Errorf("%s: %w", scope, ErrClientService.SetError(err))
 	}
-	return user, nil
+	return response, nil
 }
 
 func (u userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto) (*userPb.RegisterResp, error) {
@@ -104,7 +105,7 @@ func (u userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto) 
 		}
 		return nil, fmt.Errorf("%s: %w", scope, ErrFailToValidate.SetError(errors.New(strings.Join(errorMessages, ", "))))
 	}
-	user, err := u.userServiceClient.Register(mdCtx, &userPb.RegisterReq{
+	response, err := u.userServiceClient.Register(mdCtx, &userPb.RegisterReq{
 		Email:     userDto.Email,
 		Password:  userDto.Password,
 		FirstName: userDto.FirstName,
@@ -119,10 +120,10 @@ func (u userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto) 
 		)
 		return nil, fmt.Errorf("%s: %w", scope, ErrClientService.SetError(err))
 	}
-	return user, nil
+	return response, nil
 }
 
-func (u userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*userPb.LoginResp, error) {
+func (u userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*resp.LoginDto, error) {
 	const scope = "userServiceUsecase#Login"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
@@ -141,7 +142,7 @@ func (u userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (
 		}
 		return nil, fmt.Errorf("%s: %w", scope, ErrFailToValidate.SetError(errors.New(strings.Join(errorMessages, ", "))))
 	}
-	user, err := u.userServiceClient.Login(mdCtx, &userPb.LoginReq{
+	response, err := u.userServiceClient.Login(mdCtx, &userPb.LoginReq{
 		Email:    loginDto.Email,
 		Password: loginDto.Password,
 	})
@@ -154,5 +155,11 @@ func (u userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (
 		)
 		return nil, fmt.Errorf("%s: %w", scope, ErrClientService.SetError(err))
 	}
-	return user, nil
+	ss, err := util.GenerateSignedJwt(int(response.GetId()), response.GetEmail())
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", scope, ErrFailSigningJWT.SetError(err))
+	}
+	return &resp.LoginDto{
+		Token: ss,
+	}, nil
 }

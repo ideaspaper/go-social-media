@@ -3,9 +3,9 @@ package util
 import (
 	"errors"
 	"fmt"
+	"gatewayservice/internal/dto/resp"
 	"os"
 	"time"
-	"userservice/internal/dto/resp"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -16,7 +16,7 @@ func GenerateSignedJwt(userID int, userEmail string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", scope, errors.New("invalid environment variable"))
 	}
-	claims := &resp.JwtClaims{
+	claims := &resp.JwtClaimsDto{
 		ID:    userID,
 		Email: userEmail,
 		RegisteredClaims: jwt.RegisteredClaims{

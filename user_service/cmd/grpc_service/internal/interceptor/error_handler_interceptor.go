@@ -26,9 +26,6 @@ func (i Interceptor) ErrorHandler(err error) error {
 	} else if errors.Is(err, &usecase.ErrWrongEmailOrPassword) {
 		code = codes.Unauthenticated
 		message = "Wrong email/password"
-	} else if errors.Is(err, &usecase.ErrFailSigningJWT) {
-		code = codes.Internal
-		message = "Fail signing JWT"
 	}
 	return status.Error(code, message)
 }

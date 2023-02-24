@@ -37,6 +37,8 @@ services:
       - 'LOG_LEVEL=${GATEWAY_LOG_LEVEL}'
       - 'APP_NAME=${GATEWAY_APP_NAME}'
       - 'APP_VERSION=${GATEWAY_APP_VERSION}'
+      - 'JWT_EXPIRES_AT=${JWT_EXPIRES_AT}'
+      - 'JWT_SECRET=${JWT_SECRET}'
       - 'USER_SERVICE_HOST=user_service'
       - 'USER_SERVICE_PORT=50051'
     depends_on:
@@ -58,8 +60,6 @@ services:
       - 'LOG_LEVEL=${USER_LOG_LEVEL}'
       - 'APP_NAME=${USER_APP_NAME}'
       - 'APP_VERSION=${USER_APP_VERSION}'
-      - 'JWT_EXPIRES_AT=${JWT_EXPIRES_AT}'
-      - 'JWT_SECRET=${JWT_SECRET}'
     depends_on:
       - 'social_media_db'
     networks:

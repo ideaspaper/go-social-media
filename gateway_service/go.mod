@@ -5,8 +5,9 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/validator/v10 v10.11.2
+	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/google/uuid v1.3.0
-	github.com/ideaspaper/social-media-proto v0.0.9
+	github.com/ideaspaper/social-media-proto v0.0.10
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	google.golang.org/grpc v1.53.0
 )
