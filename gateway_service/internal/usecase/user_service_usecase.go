@@ -28,7 +28,7 @@ func NewUserServiceUsecase(logger *slog.Logger, validate *validator.Validate, us
 	}
 }
 
-func (u *userServiceUsecase) FindUserByID(ctx context.Context, userID int) (*userPb.FindByIDResp, error) {
+func (u userServiceUsecase) FindUserByID(ctx context.Context, userID int) (*userPb.FindByIDResp, error) {
 	const scope = "userServiceUsecase#FindUserByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
@@ -47,7 +47,7 @@ func (u *userServiceUsecase) FindUserByID(ctx context.Context, userID int) (*use
 	return user, nil
 }
 
-func (u *userServiceUsecase) DeleteUserByID(ctx context.Context, userID int) (*userPb.DeleteByIDResp, error) {
+func (u userServiceUsecase) DeleteUserByID(ctx context.Context, userID int) (*userPb.DeleteByIDResp, error) {
 	const scope = "userServiceUsecase#DeleteUserByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
@@ -66,7 +66,7 @@ func (u *userServiceUsecase) DeleteUserByID(ctx context.Context, userID int) (*u
 	return user, nil
 }
 
-func (u *userServiceUsecase) DeleteUserPermanentlyByID(ctx context.Context, userID int) (*userPb.DeletePermanentlyByIDResp, error) {
+func (u userServiceUsecase) DeleteUserPermanentlyByID(ctx context.Context, userID int) (*userPb.DeletePermanentlyByIDResp, error) {
 	const scope = "userServiceUsecase#DeleteUserPermanentlyByID"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
@@ -85,7 +85,7 @@ func (u *userServiceUsecase) DeleteUserPermanentlyByID(ctx context.Context, user
 	return user, nil
 }
 
-func (u *userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto) (*userPb.RegisterResp, error) {
+func (u userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto) (*userPb.RegisterResp, error) {
 	const scope = "userServiceUsecase#CreateUser"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
@@ -122,7 +122,7 @@ func (u *userServiceUsecase) Register(ctx context.Context, userDto *req.UserDto)
 	return user, nil
 }
 
-func (u *userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*userPb.LoginResp, error) {
+func (u userServiceUsecase) Login(ctx context.Context, loginDto *req.LoginDto) (*userPb.LoginResp, error) {
 	const scope = "userServiceUsecase#Login"
 	requestID := ctx.Value(util.RequestID).(string)
 	mdCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs("request-id", requestID))
